@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="ru"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Горячая ночь">
+<meta name="theme-color" content="#14040c">
+<title>Горячая ночь · игра для двоих</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;700;800&family=Playfair+Display:wght@800&display=swap" rel="stylesheet">
+<style>
+:root{--bg1:#1d5c4a;--bg2:#0d2f28;--cell:#fbf6e9;--cell2:#efe6cf;--ink:#2b2418;--line:#b9a77a;--ctr1:#e4f3dc;--ctr2:#c5e2bd;--btn:#c0392b;--card:#fffdf6;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--cell:#2d2a24;--cell2:#3a352b;--ink:#f1ead8;--line:#6b5f42;--ctr1:#24402f;--ctr2:#1a2f23;--card:#2f3a30}}
+:root[data-theme="dark"]{--cell:#2d2a24;--cell2:#3a352b;--ink:#f1ead8;--line:#6b5f42;--ctr1:#24402f;--ctr2:#1a2f23;--card:#2f3a30}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;min-height:100vh;background:radial-gradient(circle at 50% 30%,var(--bg1),var(--bg2));color:var(--ink);font-family:Nunito,system-ui,sans-serif;display:flex;justify-content:center;align-items:center}
+#board{display:grid;grid-template:1.5fr repeat(9,1fr) 1.5fr/1.5fr repeat(9,1fr) 1.5fr;width:min(98vw,700px);aspect-ratio:1;margin:8px;border:5px solid #3b2a14;border-radius:14px;box-shadow:0 12px 40px #0008,inset 0 0 0 2px #d9b45a;background:var(--line);gap:1px;overflow:hidden;font-size:clamp(5px,1.35vw,9.5px);font-weight:700}
+.c{background:linear-gradient(160deg,var(--cell),var(--cell2));position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;overflow:hidden;line-height:1.1;padding:1px}
+.c.k{background:radial-gradient(circle,#fff3c4,#f0cf75);color:#3b2a14;font-weight:800}
+.c .s{position:absolute;top:0;left:0;right:0;height:20%;box-shadow:inset 0 -2px 3px #0003}
+.c .o{position:absolute;bottom:0;left:0;right:0;height:11%;box-shadow:0 -1px 3px #0005}
+.c b{margin-top:14%;font-weight:800}
+.c span{opacity:.75;font-size:.95em}
+.c em{font-style:normal;font-size:1.9em;line-height:1;margin-top:10%}
+.c.k em{font-size:2.6em;margin-top:0}
+.t{display:flex;gap:2px;position:absolute;bottom:13%}
+.t i{width:min(2.6vw,17px);height:min(2.6vw,17px);border-radius:50%;border:2px solid #fff;box-shadow:0 2px 5px #000a,inset 0 -3px 4px #0004;animation:hop .35s}
+@keyframes hop{0%{transform:translateY(-10px) scale(1.3)}100%{transform:none}}
+#ctr{grid-area:2/2/11/11;background:radial-gradient(circle at 30% 20%,var(--ctr1),var(--ctr2));display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:2.5%;font-size:clamp(9px,2.1vw,14px);text-align:center;min-height:0;overflow:hidden}
+#ctr h1{margin:0;font:800 clamp(18px,5.4vw,36px) 'Playfair Display',Georgia,serif;letter-spacing:.12em;color:#c0392b;text-shadow:0 2px 0 #fff8,0 3px 6px #0003;transform:rotate(-2deg)}
+.pl{display:flex;gap:8px;width:100%}
+.pl div{flex:1;padding:6px;border-radius:10px;border:2px solid transparent;background:var(--card);box-shadow:0 2px 6px #0002;opacity:.7;transition:.2s}
+.pl .a{border-color:currentColor;opacity:1;transform:translateY(-2px);box-shadow:0 5px 12px #0004;font-weight:800}
+.pl b{font-size:1.5em}
+#dice{font-size:clamp(34px,10vw,64px);letter-spacing:6px;line-height:1;filter:drop-shadow(0 3px 3px #0004);animation:roll .5s}
+@keyframes roll{0%{transform:rotate(-200deg) scale(.4)}100%{transform:none}}
+button{font:800 1em Nunito,sans-serif;background:linear-gradient(#e0523f,var(--btn));color:#fff;border:0;border-radius:999px;padding:.6em 1.3em;margin:3px;cursor:pointer;box-shadow:0 3px 0 #7b241c,0 6px 10px #0003;transition:transform .1s}
+button:active{transform:translateY(2px);box-shadow:0 1px 0 #7b241c}
+button.g{background:linear-gradient(#999,#777);box-shadow:0 3px 0 #444,0 6px 10px #0003}
+#log{width:100%;overflow:auto;font-size:.88em;text-align:left;max-height:28%;background:#0000000d;border-radius:8px;padding:5px 8px;box-sizing:border-box}
+#log div:first-child{font-weight:800}
+
+.t i{animation:none}.t i.m{animation:hop .25s}
+.c.in{animation:cin .55s var(--d) both}
+@keyframes cin{from{opacity:0;transform:scale(.3) rotate(-14deg)}}
+.c.st{animation:st .3s;z-index:3}
+@keyframes st{50%{background:#fff3a8;transform:scale(1.14)}}
+.c.ld,.c.bu{animation:ld .9s;z-index:3}
+@keyframes ld{30%{transform:scale(1.2);box-shadow:0 0 0 3px #f5b800,0 0 22px 6px #f5b800aa}60%{transform:scale(1)}}
+.c.bu .o{animation:grow .7s}
+@keyframes grow{from{transform:scaleY(0)}50%{transform:scaleY(3.5)}}
+#dice{animation:none}#dice.pop{animation:dpop .6s cubic-bezier(.2,1.6,.4,1)}#dice.shk{animation:shk .15s infinite}
+@keyframes dpop{0%{transform:scale(2.2) rotate(200deg);opacity:.3}}
+@keyframes shk{0%{transform:translate(-3px,2px) rotate(-14deg)}50%{transform:translate(3px,-4px) rotate(12deg)}100%{transform:translate(-2px,-2px) rotate(-8deg)}}
+.fp{position:fixed;z-index:50;pointer-events:none;font:800 22px Nunito,sans-serif;animation:fp 1.3s ease-out forwards;text-shadow:0 2px 4px #0006,0 0 8px #fff}
+@keyframes fp{from{opacity:0;transform:translate(-50%,10px) scale(.6)}20%{opacity:1;transform:translate(-50%,-10px) scale(1.25)}to{opacity:0;transform:translate(-50%,-70px)}}
+.toast{position:fixed;left:50%;top:42%;z-index:60;pointer-events:none;background:#2b2418ee;color:#fff;padding:14px 24px;border-radius:18px;font:800 clamp(14px,3.6vw,20px) Nunito,sans-serif;text-align:center;box-shadow:0 10px 30px #000a,0 0 0 2px #f5b800;animation:ts 2.2s both;max-width:80vw}
+.toast big{display:block;font-size:2em}
+@keyframes ts{0%{opacity:0;transform:translate(-50%,-50%) scale(.3) rotateX(90deg)}12%{opacity:1;transform:translate(-50%,-50%) scale(1.12)}18%{transform:translate(-50%,-50%) scale(1)}85%{opacity:1;transform:translate(-50%,-50%)}100%{opacity:0;transform:translate(-50%,-80%) scale(.9)}}
+.cf{position:fixed;top:-14px;width:10px;height:14px;pointer-events:none;z-index:70;animation:cf linear forwards}
+@keyframes cf{to{transform:translateY(112vh) rotate(720deg)}}
+#log .n{animation:sl .4s}
+@keyframes sl{from{opacity:0;transform:translateX(-16px)}}
+#ctr button:not(:disabled){animation:bp .35s,gl 1.6s .35s infinite}
+#ctr button.g:not(:disabled){animation:bp .35s}
+@keyframes bp{from{transform:scale(.5);opacity:0}}
+@keyframes gl{50%{box-shadow:0 3px 0 #7b241c,0 0 18px 4px #ff7a5c}}
+
+html:root:root:root{--bg1:#5c0f2e;--bg2:#14040c;--cell:#2a1220;--cell2:#3a1830;--ink:#fbe9ef;--line:#8c3b5c;--ctr1:#4a1331;--ctr2:#1f0714;--card:#3a1a2e;--btn:#d6246e}
+#board{position:relative;z-index:1;border-color:#d9a05b;box-shadow:0 12px 50px #000c,0 0 40px #ff4f8b55,inset 0 0 0 2px #ff8fb8}
+#ctr h1{color:#ff5fa2;text-shadow:0 0 12px #ff4f8b,0 2px 0 #0008;font-size:clamp(16px,4.6vw,30px)}
+.c.k{color:#3b2a14}
+.pl .a{box-shadow:0 0 18px currentColor}
+.ov{position:fixed;inset:0;z-index:80;background:#140410d9;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;animation:fi .3s}
+.ov.out{opacity:0;transition:.3s}
+@keyframes fi{from{opacity:0}}
+.tk{width:min(88vw,380px);background:linear-gradient(160deg,#4a1331,#1f0714);border:2px solid #ff4f8b;border-radius:24px;padding:22px;text-align:center;color:#fbe9ef;box-shadow:0 0 50px #ff4f8b88;animation:cardin .6s cubic-bezier(.2,1.4,.4,1);font-family:Nunito,sans-serif}
+@keyframes cardin{from{transform:scale(.3) rotateY(90deg)}}
+.tk big{font-size:60px;display:block;animation:beat 1.2s infinite}
+@keyframes beat{50%{transform:scale(1.18)}}
+.tk h2{font:800 26px 'Playfair Display',serif;margin:6px 0}
+.tk p{opacity:.85;margin:4px 0 8px}
+.who{font-weight:800;color:#ff8fb8}
+.ring{position:relative;width:130px;height:130px;margin:8px auto}
+.ring svg{transform:rotate(-90deg);width:100%}
+.ring circle{fill:none;stroke:#ffffff22;stroke-width:7}
+.ring #pr{stroke:#ff4f8b;stroke-linecap:round;stroke-dasharray:100;stroke-dashoffset:0;transition:stroke-dashoffset 1s linear;filter:drop-shadow(0 0 6px #ff4f8b)}
+.ring b{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font:800 28px Nunito}
+.fires{letter-spacing:4px;font-size:20px}
+.lv{position:absolute;top:22%;right:1px;font-size:1.2em;animation:beat 1.4s infinite}
+.sm{padding:.3em .8em;font-size:.8em}
+.ht{position:fixed;bottom:-40px;opacity:.15;pointer-events:none;animation:rise linear infinite;z-index:0;text-decoration:none}
+@keyframes rise{to{transform:translateY(-115vh) rotate(40deg)}}
+
+html{-webkit-tap-highlight-color:transparent}button{touch-action:manipulation}
+#wrap{position:relative;width:min(98vw,700px);margin:8px}
+#board{width:100%;margin:0}
+#ctr{position:absolute;left:12.5%;top:12.5%;width:75%;height:75%;box-sizing:border-box;z-index:2}
+#snd{position:fixed;top:calc(env(safe-area-inset-top,0px) + 6px);right:8px;z-index:90;display:flex}
+#snd button{padding:.3em .55em;font-size:18px;border-radius:50%;animation:none!important;margin:2px;box-shadow:0 2px 8px #0008}
+#snd .off{opacity:.4}
+.toast small{font-weight:600;opacity:.85}
+@media (max-width:700px){
+body{align-items:flex-start}
+#wrap{width:100%;margin:44px 0 12px}
+#board{width:calc(100vw - 8px);margin:0 4px;border-width:3px;border-radius:10px;font-size:3.1vw}
+.c b{display:none}.c em{font-size:2.3em;margin-top:0}.c.k em{font-size:2.8em}.c span{font-size:1em;margin-top:2px}
+.c .s{height:16%}
+#ctr{position:static;width:auto;height:auto;margin:10px 4px 0;border-radius:18px;padding:14px;font-size:15px;gap:10px;min-height:300px;justify-content:space-around;box-shadow:0 8px 30px #000a}
+#ctr h1{font-size:26px}
+#dice{font-size:64px}
+button{padding:.8em 1.4em;font-size:15px}
+#log{max-height:110px;font-size:13px}
+}
+
+#cur{background:#0004;border-radius:10px;padding:6px 10px;font-size:.88em;line-height:1.3;width:100%;box-sizing:border-box;text-align:left;max-height:30%;overflow:auto}
+.tk{max-height:92vh;overflow:auto}.tk p{font-size:15px;line-height:1.4}
+.toast{width:max-content}.toast small{display:block;font-size:.7em;line-height:1.35;max-width:70vw;margin-top:4px}
+body{min-height:100vh;min-height:100dvh;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;overscroll-behavior:none}
+#cur,.tk p{-webkit-user-select:text;user-select:text}
+#bl button{display:block;width:100%;margin:5px 0}.st{text-align:left;padding-left:20px;margin:6px 0;font-size:15px;line-height:1.4}.st li{margin-bottom:6px}
+
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+@media (max-width:700px){#ctr{font-size:13px;padding:10px;min-height:0;gap:8px}#ctr h1{font-size:20px}#dice{font-size:46px}button{padding:.65em 1.1em;font-size:14px}#cur{font-size:12.5px;max-height:none}.pl div{padding:4px}.pl b{font-size:1.25em}.tk{padding:16px}.tk h2{font-size:20px}.tk big{font-size:44px}.tk p,.st{font-size:14px}.ring{width:96px;height:96px}.ring b{font-size:22px}.toast{font-size:13px}#log{font-size:12px;max-height:80px}}
+@media (orientation:landscape) and (max-height:520px){
+body{align-items:center}
+#wrap{--S:min(calc(100vh - 36px),56vw);display:flex;width:100%;height:100vh;margin:0;padding:4px 8px;box-sizing:border-box;gap:10px;align-items:center;justify-content:center}
+#board{width:var(--S);height:var(--S);flex:none;margin:0;font-size:calc(var(--S)*.026);aspect-ratio:auto}
+#ctr{position:static;flex:1;width:auto;height:var(--S);margin:0;overflow:auto;justify-content:flex-start;gap:6px;padding:8px;font-size:12px;border-radius:14px}
+#ctr h1{display:none}#dice{font-size:38px}#log{max-height:64px}#cur{font-size:12px}
+.ring{width:80px;height:80px}.tk big{font-size:32px}.tk h2{font-size:18px}.tk{padding:12px}.tk p,.st{font-size:13px}
+#snd{top:2px;right:4px}
+}
+</style></head><body>
+<noscript><p style="padding:20px;font:16px sans-serif;color:#fff">Игре нужен JavaScript. Откройте файл в браузере (Safari/Chrome) или в приложении Documents, а не в предпросмотре «Файлов».</p></noscript>
+<div id="wrap"><div id="board"></div><div id="ctr"></div></div>
+<script>
+const GC=['#c98b5a','#5bc0eb','#ff6fa8','#f08c00','#e03131','#b5179e','#7b2cbf','#1c3faa','#8a8a8a'],GP=[60,100,140,180,220,260,300,380,150];
+const t=(g,n,e,d,v)=>[n,'p',GP[g],GC[g],e,g,d,v];
+const POSES=["Миссионерская: партнёр на спине, вы сверху лицом к лицу. Удобно целоваться и смотреть в глаза.","Наездница: партнёр лежит на спине, вы сверху сами задаёте темп и глубину.","Обратная наездница: вы сверху спиной к партнёру, он держит вас за бёдра.","Ложечка: лёжа на боку, один прижимается к спине другого. Нежно и неспешно.","Сзади: партнёр на четвереньках или у края кровати, вы позади. Ритм задаёте вместе.","Лицом к лицу сидя: вы сидите у партнёра на коленях, обнявшись и целуясь.","На краю кровати: партнёр лежит на краю кровати, вы стоите или на коленях перед ним.","Стоя: лицом к лицу или у стены, опираясь друг на друга.","Бабочка: партнёр на краю кровати с приподнятыми бёдрами, вы стоите перед ним.","Кресло: вы сидите в кресле, партнёр сверху лицом к вам.","Поза 69: одновременные оральные ласки, лёжа на боку или один над другим."];
+const C=[["СТАРТ","go"],t(0,"Массаж спины","💆","Партнёр ложится на живот. Нанесите тёплое масло и неспешно массируйте спину: от поясницы к плечам, затем вдоль позвоночника. Меняйте нажим и спрашивайте, что нравится."),["Шанс","ch"],t(0,"Массаж ног","🦶","Партнёр лежит на спине. Длинными скользящими движениями массируйте стопы, икры, колени и бёдра, понемногу поднимаясь выше и целуя кожу."),["Подарок","tax",150],t(8,"Повязка на глаза","🎀","Завяжите партнёру глаза. Ласкайте его губами, пальцами и дыханием в разных местах, не говоря, куда коснётесь дальше. Партнёр только чувствует."),t(1,"Массаж рук","🤲","Берите руки партнёра по очереди: разминайте ладони, пальцы, запястья и предплечья, целуйте внутреннюю сторону запястий."),["Шанс","ch"],t(1,"Массаж шеи","💆","Встаньте или сядьте позади партнёра, разминайте шею и плечи, проведите пальцами по затылку и поцелуйте шею."),t(1,"Массаж головы","💆","Массируйте кожу головы подушечками пальцев, перебирайте волосы, гладьте виски и уши. Двигайтесь медленно, пока партнёр не расслабится."),["Пауза","jail"],t(2,"Поцелуи в шею","💋","Начните от ушка и спускайтесь вдоль шеи к ключицам: то лёгкие касания губами, то более глубокие поцелуи. Партнёр подсказывает, где приятнее."),t(8,"Масло для тела","🧴","Подогрейте масло в ладонях и плавными движениями нанесите на плечи, грудь, живот и бёдра партнёра. Следите за реакцией."),t(2,"Поцелуи в ушко","👂","Шепчите и целуйте мочку, ушную раковину и кожу за ухом, лёгко дышите на кожу, делайте паузы между поцелуями."),t(2,"Поцелуи в плечи","💋","Целуйте плечи и ключицы партнёра, двигаясь от шеи к рукам. Можно слегка прикусывать кожу, если партнёру нравится."),t(8,"Поцелуи вдоль спины","💋","Партнёр лежит на животе. Целуйте дорожку от шеи вдоль позвоночника до поясницы, добавляя касания пальцами."),t(3,"Поцелуи в живот","💋","Партнёр лежит на спине. Целуйте живот вокруг пупка, медленно спускаясь к линии белья и возвращаясь обратно: дразните паузами."),["Шанс","ch"],t(3,"Поцелуи в бёдра","💋","Разведите ноги партнёра и целуйте внутреннюю сторону бёдер от колен вверх, останавливаясь, чтобы усилить ожидание."),t(3,"Французский поцелуй","👄","Долгий глубокий поцелуй: начните мягко, постепенно усиливая страсть, обнимайте лицо, гладьте волосы и шею."),["Шампанское","free"],t(4,"Поцелуи в грудь","💋","Ласкайте грудь партнёра губами, языком и руками: начните с нежных поцелуев вокруг, затем уделите внимание самым чувствительным местам."),["Шанс","ch"],t(4,"Ласки руками","✋","Ласкайте тело партнёра ладонями и кончиками пальцев от плеч к бёдрам, меняйте скорость и нажим, ловите реакцию."),t(4,"Ласки губами","💋","Покройте поцелуями всё тело партнёра: плечи, грудь, живот, бёдра, колени. Меняйте нажим и темп, не пропуская ни одной зоны."),t(8,"Игрушки","🎁","Выберите вместе игрушку. Один ведёт, второй доверяется: пробуйте её на разных зонах тела, сначала мягко, и спрашивайте об ощущениях."),t(5,"Связанные руки","🎀","Мягко свяжите партнёру руки шарфом, не пережимая. Ласкайте тело, пока партнёр не может отвечать руками. «Стоп» работает в любой момент."),t(5,"Эротический массаж","🕯️","При свечах и тёплом масле массируйте всё тело партнёра: плечи, спину, грудь, живот, бёдра. Добавляйте дыхание и поцелуи."),t(8,"Ролевая игра","🎭","Придумайте за минуту роли и сюжет (например, незнакомцы в баре). Сыграйте сцену, флиртуйте и соблазняйте друг друга."),t(5,"Игра в подчинение","⛓️","Партнёр связан и с повязкой на глазах. Вы выбираете ласки, поцелуи и паузы. Слово «Стоп» оговорите заранее."),["На паузу","gtj"],t(6,"Оральные ласки","🔥","Нежные оральные ласки для партнёра: начните медленно, меняйте темп и нажим, следите за дыханием и реакцией, спрашивайте, что нравится."),t(6,"Ласки языком","👅","Ведите языком по телу партнёра, медленно спускаясь от шеи и груди ниже, делайте паузы, чтобы усилить предвкушение."),["Шанс","ch"],t(6,"Сладкие ласки","🍫","Нанесите шоколад или взбитые сливки на тело партнёра и медленно слизывайте, начиная с плеч и спускаясь ниже."),t(8,"Чувственные объятия","🤗","Лягте вплотную, обнимитесь и медленно целуйтесь, поглаживая спину и волосы. Дышите в одном ритме, не спешите."),["Шанс","ch"],t(7,"Секс позы","🛏️","Выпала поза. Выполняйте её вместе, в удобном темпе, следя за комфортом друг друга.",POSES),["Подарок","tax",100],t(7,"Секс позы","❤️‍🔥","Выпала поза. Выполняйте её вместе, в удобном темпе, следя за комфортом друг друга.",POSES)];
+(()=>{const o=C.slice(),f=n=>o.find(c=>c[0]==n),ch=["Шанс","ch"],D=["Нежные оральные ласки: начинайте медленно, мягкими касаниями губ и языка, меняйте нажим и спрашивайте, что нравится.","Дразнящие оральные ласки: чередуйте лёгкие касания и паузы, подводя партнёра к пределу, но не торопясь.","Ласки языком: ведите языком по внутренней стороне бёдер и ниже, меняя скорость и нажим, слушайте дыхание партнёра.","Оральные ласки с руками: сочетайте губы и руки, меняйте ритм и следите за реакцией партнёра.","Медленные оральные ласки: минимум темпа, максимум внимания; подстраивайтесь под дыхание партнёра.","Оральные ласки со сменой темпа: от нежного к более страстному и обратно, не останавливаясь надолго.","Оральные ласки лёжа на боку: выберите удобную позу и ласкайте без спешки, обнимая бёдра партнёра.","Оральные ласки с повязкой: партнёр с завязанными глазами, вы выбираете ритм и силу ласки.","Страстные оральные ласки: больше напора и страсти, но всегда учитывайте реакцию партнёра."],O=k=>t(6,"Оральные ласки",k%2?"👅":"🔥",D[k]);
+const L=[o[0],f("Массаж спины"),ch,O(0),o[4],f("Повязка на глаза"),f("Массаж ног"),O(1),f("Массаж рук"),f("Массаж шеи"),o[10],O(2),f("Масло для тела"),f("Поцелуи в ушко"),f("Поцелуи в шею"),O(3),f("Поцелуи в живот"),ch,f("Поцелуи в бёдра"),O(4),o[20],f("Поцелуи в грудь"),ch,O(5),f("Ласки губами"),f("Игрушки"),f("Связанные руки"),O(6),f("Ролевая игра"),f("Игра в подчинение"),o[30],O(7),f("Сладкие ласки"),ch,f("Эротический массаж"),O(8),ch,o[37],o[38],o[39]];C.length=0;C.push(...L)})();
+const X=[["Добавьте поцелуи в массируемые зоны и перейдите к бёдрам и ягодицам.","Закончите чувственным массажем всего тела: дыхание, лёгкие касания ногтями и поцелуи."],["Продолжите массаж плеч и спины и добавьте поцелуи в шею.","Закончите лёгкими касаниями всего тела кончиками пальцев и поцелуями в плечи и спину."],["Добавьте поцелуи в плечи и ключицы, чередуя лёгкие и глубокие.","Закончите долгим поцелуем в губы с объятиями."],["Добавьте поцелуи в грудь и бока, спускаясь и поднимаясь.","Закончите поцелуями по всему корпусу, меняя темп и нажим."],["Добавьте ласки руками по груди и животу, меняя темп.","Ласкайте руками и губами одновременно, дразня и останавливаясь."],["Добавьте поцелуи по всему телу и ласки руками, задавая темп.","Закончите смелыми ласками по выбору ведущего, с учётом «Стоп»."],["Добавьте ласки руками по бёдрам и животу в паузах между ласками.","Чередуйте темп и нажим, подводя партнёра к пику и спрашивая об ощущениях."],["Через минуту смените позу на любую другую по желанию партнёра.","Закончите в позе, которую выберет партнёр, в удобном вам обоим темпе."],["Добавьте поцелуи и нежные касания всех зон, до которых дотянетесь.","Закончите долгим поцелуем и объятиями."]];
+const CH=[["Бонус от партнёра: +100💋",100,"💰"],["Щедрая награда: +150💋",150,"💎"],["Штраф: отдайте партнёру 50💋",-50,"💸"],["Стоп-карта! Можно отказаться от любого задания",'stop',"🛑"],["Пропуск хода: следующий ход пропускаете",'skip',"⏸️"],["Вперёд на СТАРТ: +200💋",'go',"🏁"],["Вперёд на 3 клетки",'f3',"⏩"],["Бросьте кубики ещё раз!",'again',"🎲"]];
+const P=[{n:"♂ Он",c:"#3da5ff",m:1500,pos:0,jail:0,stop:0,again:0},{n:"♀ Она",c:"#ff5fa2",m:1500,pos:0,jail:0,stop:0,again:0}];
+let lv={},own={},cur=0,phase='roll',lg=["18+ · Только по обоюдному согласию. «Стоп» всегда доступен."],dice=[1,1],over=false;
+const say=t=>{lg.unshift(t)};
+let busy=false,mv=-1,fl=-1,flk='',dcls='',first=true,ll=0;
+const sleep=ms=>new Promise(r=>setTimeout(r,ms)),D=['','⚀','⚁','⚂','⚃','⚄','⚅'];
+function pop(j,t,col){snd(t[0]=='+'?'coin':'loss');const card=document.querySelectorAll('.pl>div')[j];if(!card)return;const r=card.getBoundingClientRect(),e=document.createElement('u');e.className='fp';e.textContent=t;e.style.cssText=`left:${r.left+r.width/2}px;top:${r.top}px;color:${col}`;document.body.appendChild(e);setTimeout(()=>e.remove(),1300)}
+function toast(t,ic,ms){ms=ms||2200;snd(ic=='❓'?'chance':'toast');const e=document.createElement('div');e.className='toast';e.style.animationDuration=ms+'ms';e.innerHTML=`<big>${ic||''}</big>${t}`;document.body.appendChild(e);setTimeout(()=>e.remove(),ms)}
+function confetti(){snd('fan');for(let i=0;i<90;i++){const e=document.createElement('s');e.className='cf';e.style.cssText=`left:${Math.random()*100}vw;background:hsl(${Math.random()*360},85%,55%);animation-delay:${Math.random()*1.5}s;animation-duration:${2+Math.random()*2}s`;document.body.appendChild(e)}}
+function rc(i){return i<=10?[11,11-i]:i<=20?[11-(i-10),1]:i<=30?[1,1+(i-20)]:[1+(i-30),11]}
+function cnt(o,t){return C.reduce((a,c,i)=>a+(c[1]==t&&own[i]===o),0)}
+function rent(i){const c=C[i],o=own[i];if(c[1]=='p'){const b=Math.round(c[2]/10);return C.every((x,j)=>x[3]!==c[3]||own[j]===o)?b*2:b}
+ if(c[1]=='rr')return 25*2**(cnt(o,'rr')-1);return (dice[0]+dice[1])*(cnt(o,'ut')==2?10:4)}
+function pay(a,to){const p=P[cur];p.m-=a;pop(cur,'−'+a+'💋','#e03131');if(to!=null){P[to].m+=a;pop(to,'+'+a+'💋','#2f9e44')}if(p.m<0){p.m=0;toast('Банк пуст — но игра продолжается!','💔')}}
+async function roll(){const p=P[cur];if(p.jail){p.jail=0;say(`${p.n}: пауза, ход пропущен`);toast('Пауза: ход пропущен','⏸️');phase='end';return}phase='mv';render();const el=document.getElementById('dice');el.className='shk';
+ for(let k=0;k<10;k++){snd('tick');el.textContent=D[1+Math.random()*6|0]+D[1+Math.random()*6|0];await sleep(75)}
+ dice=[1+Math.random()*6|0,1+Math.random()*6|0];const s=dice[0]+dice[1];dcls='pop';snd('land');say(`${p.n} бросил ${dice[0]}+${dice[1]}`);render();await sleep(450);
+ 
+ await move(s)}
+async function move(n){const p=P[cur];mv=cur;for(let k=0;k<n;k++){p.pos=(p.pos+1)%40;fl=p.pos;flk='st';snd('step');if(!p.pos){p.m+=200;pop(cur,'+200💋','#2f9e44');say("Прошёл СТАРТ: +200💋")}render();await sleep(210)}mv=-1;fl=p.pos;flk='ld';render();await sleep(300);await land()}
+async function land(){await land0();const p=P[cur],c=C[p.pos];if(c[1]=='p'&&(own[p.pos]===undefined||own[p.pos]==cur))await card(p.pos)}
+function card(i,v){return new Promise(res=>{const c=C[i],L=lv[i]||0,b=!v&&phase=='buy',u=!v&&phase=='up',el=document.createElement('div');el.className='ov';
+el.innerHTML=`<div class="tk"><big>${c[4]}</big><h2>${c[0]}</h2>${own[i]!==undefined?`<div class="who">Владелец: ${P[own[i]].n} ${'🏠'.repeat(L)}</div>`:`<div class="who">Свободно · цена ${c[2]}💋</div>`}<p>${c[6]}</p>${L>1?'<p>+ '+X[c[5]].slice(0,L-1).join(' ')+'</p>':''}${c[7]?'<p><i>Поза выпадет случайно</i></p>':''}<div>${b?`<button id="y">Купить за ${c[2]}💋</button><button id="n" class="g">Отказаться</button>`:u?`<button id="y">🏠 Построить дом за ${c[2]/2|0}💋</button><button id="n" class="g">Пропустить</button>`:'<button id="n">Понятно</button>'}</div></div>`;
+document.body.appendChild(el);const done=()=>{el.classList.add('out');setTimeout(()=>el.remove(),300);res()};const y=el.querySelector('#y');if(y)y.onclick=()=>{b?buy():up();done()};el.querySelector('#n').onclick=()=>{if(b||u)phase='end';done()}})}
+async function land0(){const p=P[cur],i=p.pos,c=C[i];phase='end';
+ if(c[1]=='p'||c[1]=='rr'||c[1]=='ut'){if(own[i]===undefined){if(p.m>=c[2])phase='buy';else say(`Не хватает денег на «${c[0]}»`)}
+  else if(own[i]!=cur){await task(i)}else if(lv[i]<3&&p.m>=c[2]/2)phase='up'}
+ else if(c[1]=='tax'){say(`Подарок партнёру: ${c[2]}💋`);toast('Подарок партнёру: '+c[2]+'💋','🎁');pay(Math.min(c[2],p.m),1-cur)}
+ else if(c[1]=='gtj'){p.pos=10;p.jail=1;say("Пауза!");toast("Пауза!","⏸️")}
+ else if(c[1]=='ch'){const k=CH[Math.random()*CH.length|0],a=k[1];say("Шанс: "+k[0]);toast(k[0],k[2]);await sleep(900);
+ if(typeof a=='number'){a>0?(p.m+=a,pop(cur,'+'+a+'💋','#2f9e44')):pay(Math.min(-a,p.m),1-cur)}
+ else if(a=='go'){p.pos=0;p.m+=200;pop(cur,'+200💋','#2f9e44')}
+ else if(a=='skip')p.jail=1;else if(a=='stop')p.stop++;else if(a=='again')p.again=1;
+ else await move(3)}}
+function buy(){const p=P[cur],i=p.pos;p.m-=C[i][2];snd('buy');own[i]=cur;lv[i]=1;fl=i;flk='bu';pop(cur,'−'+C[i][2]+'💋','#e03131');toast('Куплено: '+C[i][0],'🏠');say(`${p.n} купил «${C[i][0]}»`);phase='end'}
+function up(){const p=P[cur],i=p.pos,k=C[i][2]/2|0;p.m-=k;pop(cur,'−'+k+'💋','#e03131');snd('buy');lv[i]++;fl=i;flk='bu';toast(C[i][0]+': домов '+lv[i],'🏠');say(`${p.n} построил дом на «${C[i][0]}» (${lv[i]} 🏠)`);phase='end'}
+function build(){if(busy)return;const p=P[cur],l=C.map((c,i)=>i).filter(i=>own[i]===cur&&lv[i]<3&&p.m>=C[i][2]/2);
+if(!l.length){toast('Нет клеток для постройки или не хватает 💋','🏠');return}
+const el=document.createElement('div');el.className='ov';el.innerHTML=`<div class="tk"><h2>🏠 Построить дом</h2><div id="bl">${l.map(i=>`<button data-i="${i}">${C[i][4]} ${C[i][0]} · ${'🏠'.repeat(lv[i])} → ${'🏠'.repeat(lv[i]+1)} · ${C[i][2]/2|0}💋</button>`).join('')}</div><button class="g" id="cl">Закрыть</button></div>`;
+document.body.appendChild(el);el.querySelector('#cl').onclick=()=>el.remove();
+el.querySelectorAll('[data-i]').forEach(b=>b.onclick=()=>{const i=+b.dataset.i,k=C[i][2]/2|0;p.m-=k;pop(cur,'−'+k+'💋','#e03131');lv[i]++;snd('buy');fl=i;flk='bu';say(`${p.n} построил дом на «${C[i][0]}» (${lv[i]} 🏠)`);toast('Дом построен: '+C[i][0],'🏠');el.remove();render()})}
+function finish(){if(busy)return;over=true;confetti();toast('Игра окончена. Ночь была жаркой!','🥂');render()}
+function task(i){return new Promise(res=>{const c=C[i],o=own[i],L=lv[i],T=(45+15*c[5])*L;let t=T,run=0,iv;const el=document.createElement('div');el.className='ov';
+el.innerHTML=`<div class="tk"><div class="who">${P[cur].n} → ${P[o].n}</div><big>${c[4]}</big><h2>${c[0]}</h2><ol class="st"><li>${c[6]}</li>${L>1?'<li>'+X[c[5]][0]+'</li>':''}${L>2?'<li>'+X[c[5]][1]+'</li>':''}</ol>${c[7]?'<p><b>'+c[7][Math.random()*c[7].length|0]+'</b></p>':''}<div class="fires">${'🏠'.repeat(L)}</div><div class="ring"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="44"/><circle id="pr" cx="50" cy="50" r="44" pathLength="100"/></svg><b id="tm"></b></div><div><button id="go">▶ Начать</button><button id="sk" class="g">${P[cur].stop?'🛑 Стоп-карта':'Пропустить −50💋'}</button></div></div>`;
+document.body.appendChild(el);const q=x=>el.querySelector(x),f=s=>(s/60|0)+':'+String(s%60).padStart(2,'0'),u=()=>{q('#tm').textContent=f(t);q('#pr').style.strokeDashoffset=100*(1-t/T)};u();
+const fin=ok=>{clearInterval(iv);snd(ok?'win':'click');el.classList.add('out');setTimeout(()=>el.remove(),350);say(ok?`${P[cur].n} выполнил(а): ${c[0]}`:'Задание пропущено');if(ok)toast('Выполнено!','💞');res()};
+q('#go').onclick=()=>{if(!run){run=1;q('#go').textContent='✓ Готово';iv=setInterval(()=>{t--;u();if(t<4&&t>0)snd('tick');if(t<=0)fin(1)},1000)}else fin(1)};q('#sk').onclick=()=>{const p=P[cur];if(p.stop){p.stop--;toast('Стоп-карта использована','🛑')}else if(p.m>0)pay(Math.min(50,p.m),o);fin(0)}})}
+function end(){if(P[cur].again){P[cur].again=0;phase='roll';toast(P[cur].n+': бросок ещё раз','🎲');return}cur=1-cur;phase='roll';toast(P[cur].n+', ваш ход','🎲')}
+async function act(a){if(over||busy)return;busy=true;snd('click');await ({roll,buy,up,end,skip:()=>{phase='end'}})[a]();busy=false;render()}
+const IC={go:'➜',jail:'🔒',gtj:'⏸️',free:'🅿️',ch:'❓',tax:'💸',rr:'🚂',ut:'💡'};function render(){const fc=fl,fk=flk,f0=first,dc=dcls;fl=-1;dcls='';first=false;const b=document.getElementById('board');let h='';
+ C.forEach((c,i)=>{const[r,k]=rc(i);const toks=P.map((p,j)=>p.pos==i?`<i class="${mv==j?'m':''}" style="background:${p.c}"></i>`:'').join('');
+  h+=`<div class="c${i%10==0?' k':''}${fc==i?' '+fk:''}${f0?' in':''}" style="grid-area:${r}/${k};--d:${i*22}ms" onclick="info(${i})">${c[3]?`<div class="s" style="background:${c[3]}"></div>`:''}${(IC[c[1]]||c[4])?`<em>${IC[c[1]]||c[4]}</em>`:''}<b>${c[0]}</b>${c[2]&&c[1]!='tax'?`<span>${c[2]}💋</span>`:''}${own[i]!==undefined?`<div class="o" style="background:${P[own[i]].c}"></div>`:''}${lv[i]?'<span class="lv">'+'🏠'.repeat(lv[i])+'</span>':''}<div class="t">${toks}</div></div>`});
+ const pl=P.map((p,j)=>`<div class="${j==cur&&!over?'a':''}" style="color:${p.c}"><span style="color:var(--ink)">${p.n}</span><br><b style="color:var(--ink)">${p.m}💋</b><span style="color:var(--ink)">${p.jail?' ⏸':''}${p.stop?' 🛑'+p.stop:''}</span></div>`).join('');
+ const d=['','⚀','⚁','⚂','⚃','⚄','⚅'];let bt='';
+ if(over)bt='<button onclick="location.reload()">Новая игра</button>';
+ else if(phase=='roll')bt=`<button onclick="act('roll')">🎲 Бросить кубики</button>`;
+ else if(phase=='mv')bt='<button disabled style="opacity:.45">…</button>';else if(phase=='up')bt=`<button onclick="act('up')">🏠 Построить дом за ${C[P[cur].pos][2]/2|0}💋</button><button class="g" onclick="act('skip')">Пропустить</button>`;else if(phase=='buy')bt=`<button onclick="act('buy')">Купить за ${C[P[cur].pos][2]}💋</button><button class="g" onclick="act('skip')">Отказаться</button>`;
+ else bt=`<button onclick="act('end')">Закончить ход</button>`;
+ const cc=C[P[cur].pos],cd=cc[1]=='p'?`<b>${cc[4]} ${cc[0]}</b>${own[P[cur].pos]!==undefined?' · '+P[own[P[cur].pos]].n+' '+'🏠'.repeat(lv[P[cur].pos]):''}<br>${cc[6]}${own[P[cur].pos]!==undefined&&lv[P[cur].pos]>1?'<br>+ '+X[cc[5]].slice(0,lv[P[cur].pos]-1).join(' '):''}${cc[7]?'<br><i>Поза выпадет случайно</i>':''}`:`<b>${cc[0]}</b>`;const ui=`<h1>ГОРЯЧАЯ НОЧЬ</h1><div class="pl">${pl}</div><div id="dice" class="${dc}">${d[dice[0]]}${d[dice[1]]}</div><div id="cur">${cd}</div><div>${bt}${!over&&phase=='roll'?'<button class="g sm" onclick="build()">🏠 Построить</button>':''}${over?'':'<button class="g sm" onclick="finish()">🏁 Завершить</button>'}</div><div id="log">${lg.slice(0,3).map((x,k)=>'<div'+(k==0&&lg.length!=ll?' class="n"':'')+'>'+x+'</div>').join('')}</div>`;b.innerHTML=h;document.getElementById('ctr').innerHTML=ui;ll=lg.length}
+
+let AC,mg,mm,mon=1,son=1,mi;
+function ac(){if(!AC){AC=new(window.AudioContext||window.webkitAudioContext)();mg=AC.createGain();mg.gain.value=.55;mg.connect(AC.destination);mm=AC.createGain();mm.gain.value=.8;mm.connect(mg)}if(AC.state=='suspended')AC.resume()}
+function tn(f,d,ty,v,w,dest){if(!AC)return;const t=AC.currentTime+(w||0),o=AC.createOscillator(),g=AC.createGain();o.type=ty||'sine';o.frequency.value=f;g.gain.setValueAtTime(0.0001,t);g.gain.linearRampToValueAtTime(v||.15,t+.02);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g);g.connect(dest||mg);o.start(t);o.stop(t+d+.05)}
+const N=n=>440*2**((n-69)/12),arp=(a,d,ty,v,g)=>a.forEach((n,k)=>tn(N(n),d,ty,v,k*(g||.08)));
+const SF={click:()=>tn(700,.06,'triangle',.1),tick:()=>tn(250+Math.random()*250,.05,'square',.05),step:()=>tn(520,.09,'triangle',.12),land:()=>{tn(196,.35,'sine',.3);tn(392,.25,'triangle',.1)},
+buy:()=>arp([72,76,79,84],.3,'triangle',.15),coin:()=>{tn(1320,.12,'square',.06);tn(1760,.22,'square',.06,.08)},loss:()=>{tn(300,.2,'sawtooth',.07);tn(220,.3,'sawtooth',.07,.12)},
+toast:()=>{tn(880,.12,'sine',.1);tn(1175,.2,'sine',.1,.08)},chance:()=>arp([84,88,91,96],.4,'sine',.1,.06),win:()=>arp([72,76,79,84],.4,'triangle',.15,.1),fan:()=>arp([72,76,79,84,79,84,88,91],.5,'triangle',.14,.12)};
+function snd(k){if(!son)return;ac();SF[k]&&SF[k]();if(['land','buy','loss'].includes(k)&&navigator.vibrate)navigator.vibrate(25)}
+function music(){ac();if(mi)return;let st=0;const H=[[57,60,64],[53,57,60],[55,60,64],[55,59,62]],B=[45,41,36,43];
+mi=setInterval(()=>{if(!mon||document.hidden)return;const q=(st>>3)%4,ch=H[q],k=st%8;if(k==0){tn(N(B[q]),1.8,'sine',.22,0,mm);ch.forEach(n=>tn(N(n),3.2,'triangle',.05,0,mm))}
+tn(N(ch[[0,1,2,1,2,1,0,1][k]]+12),.8,'sine',.09,0,mm);if(k==4)tn(N(ch[2]+24),1,'sine',.04,0,mm);st++},430)}
+function tg(w){if(w=='m'){mon=!mon;if(mon)music()}else son=!son;document.querySelectorAll('#snd button')[w=='m'?0:1].classList.toggle('off',!(w=='m'?mon:son))}
+function info(i){const c=C[i];snd('click');if(c[1]!='p'){toast(c[0],IC[c[1]]);return}if(!document.querySelector('.ov'))card(i,1)}
+const sb=document.createElement('div');sb.id='snd';sb.innerHTML='<button onclick="tg(\'m\')">🎵</button><button onclick="tg(\'s\')">🔊</button>';document.body.appendChild(sb);
+['touchend','click'].forEach(ev=>document.addEventListener(ev,()=>{if(son){ac();if(mon)music()}},{once:true}));
+document.addEventListener('visibilitychange',()=>{if(AC)document.hidden?AC.suspend():AC.resume()});
+render();
+for(let i=0;i<16;i++){const e=document.createElement('s');e.className='ht';e.textContent=['❤','💋','🔥','💞'][i%4];e.style.cssText=`left:${i*6.5}vw;font-size:${14+i%5*8}px;animation-duration:${8+i%6*3}s;animation-delay:${-i*1.3}s`;document.body.appendChild(e)}
+</script></body></html>
